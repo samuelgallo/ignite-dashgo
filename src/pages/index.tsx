@@ -2,7 +2,31 @@ import Head from "next/head";
 import { Flex, Button, Stack } from "@chakra-ui/react";
 import { Input } from "../components/Form/Input";
 
-export default function Home() {
+import { SubmitHandler, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+type SignInFormData = {
+  email: string;
+  password: string;
+};
+
+const signInFormSchema = yup.object().shape({
+  email: yup.string().required("Email required").email("Invalid email"),
+  password: yup.string().required("Password required"),
+});
+
+export default function SignIn() {
+  const { register, handleSubmit, formState } = useForm({
+    resolver: yupResolver(signInFormSchema),
+  });
+
+  const { errors } = formState;
+
+  const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log(values);
+  };
   return (
     <>
       <Head>
@@ -18,12 +42,31 @@ export default function Home() {
           p="8"
           borderRadius={8}
           flexDir="column"
+          onSubmit={handleSubmit(handleSignIn)}
         >
           <Stack spacing="4">
-            <Input name="email" type="email" label="E-mail" />
-            <Input name="password" type="password" label="Password" />
+            <Input
+              name="email"
+              type="email"
+              label="E-mail"
+              error={errors.email}
+              {...register("email")}
+            />
+            <Input
+              name="password"
+              type="password"
+              label="Password"
+              error={errors.password}
+              {...register("password")}
+            />
           </Stack>
-          <Button type="submit" mt="6" colorScheme="pink" size="lg">
+          <Button
+            type="submit"
+            mt="6"
+            colorScheme="pink"
+            size="lg"
+            isLoading={formState.isSubmitting}
+          >
             Login
           </Button>
         </Flex>
